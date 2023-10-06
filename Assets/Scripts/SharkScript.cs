@@ -31,10 +31,15 @@ public class SharkScript : MonoBehaviour
     public bool Line7;
 
     public bool shortScream = false;
+    public float shoutCount = 0.5f;
+    public float shoutCountDown1 = 0.5f;
+    public float shoutCountDown2 = 0.1f;
+
+    public float biteCountDown1 = 0.1f;
+    public float biteCountDown2 = 0.1f;
 
     public bool conversationOn = false;
     public bool conversationOver = false;
-    public float conversationCountDown = 5f;
     public GameObject boy;
     public GameObject Exit;
 
@@ -44,11 +49,23 @@ public class SharkScript : MonoBehaviour
 
     private CameraShake myCameraShake;
 
+    public AudioSource mySource;
+    public AudioClip cry;
+    public AudioClip monsterHello;
+    public AudioClip monsterLaughter;
+
+    public GameObject soundPlayer;
+
+    //public bool alreadycry = false;
+
     // Start is called before the first frame update
     void Start()
     {
         myRend = GetComponent<SpriteRenderer>();
         myCameraShake = GetComponent<CameraShake>();
+
+        shoutCount = shoutCountDown1;
+        //shoutCount = shoutCountDown2;
     }
 
     // Update is called once per frame
@@ -105,9 +122,14 @@ public class SharkScript : MonoBehaviour
             }
         }
 
-        if (shortScream)
+        if (shortScream && shoutCount >= 0)
         {
+            shoutCount -= Time.deltaTime;
             myCameraShake.Shake(0.1f);
+        }
+
+        if(shoutCount <= 0)
+        {
             shortScream = false;
         }
 
@@ -115,11 +137,14 @@ public class SharkScript : MonoBehaviour
         if (conversationOn && !conversationOver)
         {
             myRend.flipY = false;
+            soundPlayer.GetComponent<AudioSource>().Stop();
 
             if (Line1)
             {
                 nameText.text = "Boy";
                 dialogueText.text = "*Scream";
+
+                //shortScream = true;
 
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
@@ -130,6 +155,8 @@ public class SharkScript : MonoBehaviour
             {
                 nameText.text = "Sharkenstein";
                 dialogueText.text = "Child, what is the meaning of this? I do not intend to hurt you; listen to me.";
+
+                //shoutCount = shoutCountDown1;
 
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
@@ -172,7 +199,7 @@ public class SharkScript : MonoBehaviour
                 dialogueText.text = "Sharkenstein! you belong then to my enemy—to him towards whom I have sworn eternal revenge; you shall be my first victim.";
 
                 myRend.sprite = stateOpenMouth;
-                myCameraShake.Shake(0.1f);
+                shortScream = true;
 
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
@@ -184,8 +211,14 @@ public class SharkScript : MonoBehaviour
                 nameText.text = "Boy";
                 dialogueText.text = "*Scream out cursing epithets";
 
+                shortScream = true;
+                shoutCount = shoutCountDown2;
+
+                mySource.PlayOneShot(cry);
+
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
+                    myCameraShake.Shake(0.1f);
                     conversationBox.SetActive(false);
                     boy.GetComponent<BoyScript>().conversationOn = false;
                     conversationOver = true;
@@ -204,6 +237,7 @@ public class SharkScript : MonoBehaviour
         if (!Line7)
         {
             //myCameraShake.Shake(0.1f);
+            mySource.PlayOneShot(monsterLaughter);
             Destroy(collision.gameObject);
             myRend.flipY = false;
             myRend.sprite = stateBlood;
@@ -214,7 +248,9 @@ public class SharkScript : MonoBehaviour
             conversationBox.SetActive(true);
             collision.gameObject.GetComponent<BoyScript>().conversationOn = true;
             conversationOn = true;
+            //soundPlayer.GetComponent<AudioSource>().Stop();
             myRend.sprite = stateConfused;
+            mySource.PlayOneShot(monsterHello);
             //FindObjectOfType<DialogueManager>().StartDialogue(dialogue);
         }
 

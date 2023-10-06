@@ -16,6 +16,9 @@ public class BoyScript : MonoBehaviour
 
     public Sprite shockedFace;
 
+    public AudioSource mySource;
+    //public AudioClip walkingSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,6 +51,11 @@ public class BoyScript : MonoBehaviour
                 transform.position += new Vector3(moveSpeed * Time.deltaTime, 0, 0);
                 myRend.flipX = false;
             }
+        }
+
+        if (conversationOn)
+        {
+            mySource.Stop();
         }
 
     }
