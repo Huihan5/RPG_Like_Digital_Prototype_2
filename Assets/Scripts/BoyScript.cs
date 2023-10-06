@@ -14,6 +14,8 @@ public class BoyScript : MonoBehaviour
 
     SpriteRenderer myRend;
 
+    public Sprite shockedFace;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,5 +50,10 @@ public class BoyScript : MonoBehaviour
             }
         }
 
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        myRend.sprite = shockedFace;
     }
 }

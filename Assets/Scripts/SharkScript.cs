@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SharkScript : MonoBehaviour
 {
@@ -29,24 +30,52 @@ public class SharkScript : MonoBehaviour
     public bool Line6;
     public bool Line7;
 
+    public bool shortScream = false;
+
     public bool conversationOn = false;
+    public bool conversationOver = false;
     public float conversationCountDown = 5f;
+    public GameObject boy;
+    public GameObject Exit;
 
     public Sprite stateConfused;
+    public Sprite stateOpenMouth;
     public Sprite stateBlood;
+
+    private CameraShake myCameraShake;
 
     // Start is called before the first frame update
     void Start()
     {
         myRend = GetComponent<SpriteRenderer>();
+        myCameraShake = GetComponent<CameraShake>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Fixing Posistion
+        if(transform.position.x <= leftBoundary)
+        {
+            transform.position += new Vector3(moveSpeed * Time.deltaTime, 0, 0);
+        }
+        else if(transform.position.x >= rightBoundary)
+        {
+            transform.position -= new Vector3(moveSpeed * Time.deltaTime, 0, 0);
+        }
+
+        if(transform.position.y <= bottomBoundary)
+        {
+            transform.position += new Vector3(0, moveSpeed * Time.deltaTime, 0);
+        }
+        else if (transform.position.y >= upBoundary)
+        {
+            transform.position -= new Vector3(0, moveSpeed * Time.deltaTime, 0); ;
+        }
+
+        //Player movement
         if (!conversationOn)
         {
-            //Player movement
             if (transform.position.x >= leftBoundary && transform.position.x <= rightBoundary)
             {
                 if (Input.GetKey(KeyCode.A))
@@ -66,17 +95,24 @@ public class SharkScript : MonoBehaviour
                 if (Input.GetKey(KeyCode.W))
                 {
                     transform.position += new Vector3(0, moveSpeed * Time.deltaTime, 0);
-                    myRend.flipY = true;
+                    myRend.flipY = false;
                 }
                 else if (Input.GetKey(KeyCode.S))
                 {
                     transform.position -= new Vector3(0, moveSpeed * Time.deltaTime, 0);
-                    myRend.flipY = false;
+                    myRend.flipY = true;
                 }
             }
         }
 
-        if (conversationOn)
+        if (shortScream)
+        {
+            myCameraShake.Shake(0.1f);
+            shortScream = false;
+        }
+
+        //Dialogue
+        if (conversationOn && !conversationOver)
         {
             myRend.flipY = false;
 
@@ -135,6 +171,9 @@ public class SharkScript : MonoBehaviour
                 nameText.text = "Sharkenstein";
                 dialogueText.text = "Sharkenstein! you belong then to my enemy—to him towards whom I have sworn eternal revenge; you shall be my first victim.";
 
+                myRend.sprite = stateOpenMouth;
+                myCameraShake.Shake(0.1f);
+
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     Line6 = false;
@@ -148,7 +187,8 @@ public class SharkScript : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
                     conversationBox.SetActive(false);
-                    //collision.gameObject.GetComponent<BoyScript>().conversationOn = false;
+                    boy.GetComponent<BoyScript>().conversationOn = false;
+                    conversationOver = true;
                     Line7 = false;
                     conversationOn = false;
                 }
@@ -161,7 +201,15 @@ public class SharkScript : MonoBehaviour
     {
         Debug.Log(collision.gameObject.name);
 
-        if (collision.gameObject.name == "Boy")
+        if (!Line7)
+        {
+            //myCameraShake.Shake(0.1f);
+            Destroy(collision.gameObject);
+            myRend.flipY = false;
+            myRend.sprite = stateBlood;
+            Exit.SetActive(true);
+        }
+        else if (collision.gameObject.name == "Boy")
         {
             conversationBox.SetActive(true);
             collision.gameObject.GetComponent<BoyScript>().conversationOn = true;
@@ -170,10 +218,10 @@ public class SharkScript : MonoBehaviour
             //FindObjectOfType<DialogueManager>().StartDialogue(dialogue);
         }
 
-        if (!Line7)
+        if (collision.gameObject.name == "Exit")
         {
-            Destroy(collision.gameObject);
-            myRend.sprite = stateBlood;
+            SceneManager.LoadScene(0);
         }
     }
+
 }
