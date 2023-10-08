@@ -7,6 +7,9 @@ public class BoyScript : MonoBehaviour
     bool turnLeft = false;
     bool turnRight = true;
 
+    public float leftBoundary = -8f;
+    public float rightBoundary = 8f;
+
     public int moveSpeed = 3;
 
     [SerializeField]
@@ -28,12 +31,12 @@ public class BoyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.x <= -8)
+        if (transform.position.x <= leftBoundary)
         {
             turnLeft = false;
             turnRight = true;
         }
-        else if (transform.position.x >= 8)
+        else if (transform.position.x >= rightBoundary)
         {
             turnRight = false;
             turnLeft = true;

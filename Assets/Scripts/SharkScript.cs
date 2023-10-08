@@ -56,7 +56,8 @@ public class SharkScript : MonoBehaviour
 
     public GameObject soundPlayer;
 
-    //public bool alreadycry = false;
+    public bool screamCry = false;
+    public bool alreadycry = false;
 
     // Start is called before the first frame update
     void Start()
@@ -137,7 +138,7 @@ public class SharkScript : MonoBehaviour
         if (conversationOn && !conversationOver)
         {
             myRend.flipY = false;
-            soundPlayer.GetComponent<AudioSource>().Stop();
+            soundPlayer.GetComponent<SoundPlayer>().inConversation = true;
 
             if (Line1)
             {
@@ -211,10 +212,10 @@ public class SharkScript : MonoBehaviour
                 nameText.text = "Boy";
                 dialogueText.text = "*Scream out cursing epithets";
 
+                screamCry = true;
+
                 shortScream = true;
                 shoutCount = shoutCountDown2;
-
-                mySource.PlayOneShot(cry);
 
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
@@ -222,9 +223,16 @@ public class SharkScript : MonoBehaviour
                     conversationBox.SetActive(false);
                     boy.GetComponent<BoyScript>().conversationOn = false;
                     conversationOver = true;
+                    soundPlayer.GetComponent<SoundPlayer>().inConversation = false;
                     Line7 = false;
                     conversationOn = false;
                 }
+            }
+
+            if(screamCry && !alreadycry)
+            {
+                mySource.PlayOneShot(cry);
+                alreadycry = true;
             }
         }
         
